@@ -11,6 +11,7 @@ const pool = new Pool({
 });
 
 export class AuthService {
+    
     async register(name:string, password:string, email:string){
         const existingUser = await pool.query(
             'SELECT * FROM users WHERE email = $1',
@@ -24,7 +25,7 @@ export class AuthService {
         'INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING id, name, email',
         [name, email, hashedPassword]
     );
-    const token =jwt.sign(
+    const token = jwt.sign(
         { userId: newUser.rows[0].id, email: email },
         process.env.JWT_SECRET || 'secret_key',
         { expiresIn: '7d' }
@@ -35,5 +36,34 @@ export class AuthService {
         user: newUser.rows[0],
         token
     }
+    };
+    
+    async login(email: string, password: string) {
+        const userFromDb = await pool.query(
+            'SELECT id, email, password FROM users WHERE email = $1',
+            [email]
+        );
+
+        if (userFromDb.rows.length === 0) {
+            throw new Error('Invalid email or password');
+        }
+
+        const isValid = await bcrypt.compare(password, userFromDb.rows[0].password);
+        if (!isValid) {
+            throw new Error('Invalid email or password');
+        }
+
+        const payload = { userId: userFromDb.rows[0].id };
+        const accessToken = jwt.sign(
+            payload,
+            process.env.JWT_SECRET || 'secret_key',
+            { expiresIn: '4h' }
+        );
+
+        return {
+            success: true,
+            accessToken
+        };
     }
 }
+
