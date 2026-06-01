@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { authenticate } from "./jwt-validate.js";
+import { getUserIdFromToken } from '../utils/jwt-helper.js';
 
 
 export async function jwtValidationMiddleware(req: Request,
@@ -7,7 +7,7 @@ export async function jwtValidationMiddleware(req: Request,
                                               next: NextFunction) {
     const headers = req.headers;
     let accessToken = headers.authorization;
-    const userId = authenticate(accessToken);
+    const userId = accessToken ? getUserIdFromToken(accessToken) : null;
 
     if (!userId) {
         res.status(401).send({

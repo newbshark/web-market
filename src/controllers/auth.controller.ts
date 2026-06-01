@@ -44,3 +44,19 @@ export const login = async (req: Request, res: Response) => {
         });
     }
 };
+
+export const updateUserName = async (req: Request, res: Response) => {
+  try {
+    const userId = req.userId;
+    if (!userId) {
+      return res.status(401).json({ message: 'Не авторизован' });
+    };
+    const { name } = req.body;
+    if (!name) return res.status(400).json({ message: 'Имя обязательно' });
+    const updatedUser = await authService.updateUserName(userId, name);
+    res.json({ success: true, user: updatedUser });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Неизвестная ошибка';
+  res.status(400).json({ success: false, message });
+}
+}
