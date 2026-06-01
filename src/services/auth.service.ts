@@ -65,13 +65,5 @@ export class AuthService {
             accessToken
         }
     };
-    async updateUserName(userId: number, newName: string) {
-  const result = await pool.query(
-    'UPDATE users SET name = $1 WHERE id = $2 RETURNING id, name, email',
-    [newName, userId]
-  );
-  if (result.rows.length === 0) throw new Error('Пользователь не найден');
-  return result.rows[0];
-}
 }
 

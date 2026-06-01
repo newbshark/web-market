@@ -5,7 +5,7 @@ import { register, login, updateUserName } from './controllers/auth.controller.j
 import { authenticate } from './middleware/jwt-validate.js';
 
 
-logger.info('Приложение запущено');
+logger.info('Running application');
 
 const app = express();
 
