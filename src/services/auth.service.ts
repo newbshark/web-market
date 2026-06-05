@@ -63,7 +63,7 @@ export class AuthService {
         return {
             success: true,
             accessToken
-        };
-    }
+        }
+    };
 }
 

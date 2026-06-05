@@ -1,25 +1,28 @@
+import { Request, Response, NextFunction } from 'express';
 import jwt, { JwtPayload } from 'jsonwebtoken';
 
-export function authenticate(accessToken: string | undefined): number {
-    accessToken = accessToken?.split(' ')?.[1];
-    if (!accessToken) {
-        throw new Error('Access token is missing');
-    }
+export const authenticate = (req: Request, res: Response, next: NextFunction) => {
+  const authHeader = req.headers.authorization;
+     if (!authHeader || typeof authHeader !== 'string') {
+    return res.status(401).json({ message: 'Token not provided' });
+  }
 
-    const jwtSecret = process.env.JWT_SECRET;
+    const token = authHeader.split(' ')[1];
+  if (!token) {
+    return res.status(401).json({ message: 'Token abcent' });
+  }
 
-    if (jwtSecret === undefined) {
-        console.error('JWT_SECRET is not defined in environment variables');
-        throw new Error('JWT_SECRET is not defined in environment variables');
-    }
+     const jwtSecret = process.env.JWT_SECRET;
+  if (!jwtSecret) {
+    console.error('JWT_SECRET is not defined');
+    return res.status(500).json({ message: 'Internal server error' });
+  }
 
-    try {
-        const decoded = jwt.verify(accessToken, jwtSecret) as JwtPayload;
-        console.log(decoded);
-
-        return decoded['userId'];
-    } catch (e) {
-        console.log(e);
-        throw new Error('Invalid access token');
-    }
-}
+      try {
+    const decoded = jwt.verify(token, jwtSecret) as JwtPayload;
+    req.userId = decoded.userId;
+    next();
+  } catch (error) {
+    return res.status(401).json({ message: 'Invalid or expired token' });
+  }
+};
