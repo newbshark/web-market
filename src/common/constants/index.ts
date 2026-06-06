@@ -1,0 +1,1 @@
+export const ACTIVE_STATUS_ID = 1;
