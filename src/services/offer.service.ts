@@ -28,5 +28,13 @@ export class AdvertisementService {
         }
     
     }
+    async getUserOffers(userId: number) {
+        const result = await pool.query(
+            'SELECT * FROM offers WHERE user_id = $1',
+            [userId]
+        );
+        return result.rows;
+    }
+
 }
 export const offerService = new AdvertisementService();
