@@ -16,7 +16,7 @@ app.get('/offers', getAllOffers);
 app.post('/register', register);
 app.post('/login', login);
 app.patch('/user/name', authenticate, updateUserName);
-app.get('/api/users/:userId/offers', authenticate, getUserOffers);
+app.get('/api/users/:userId/offers', getUserOffers);
 
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {

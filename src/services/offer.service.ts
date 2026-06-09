@@ -1,14 +1,15 @@
 import { Pool } from 'pg';
+import { configService } from '../common/config/config.service.js';
 
 const pool = new Pool({
-    host: process.env.DB_HOST || 'localhost',
-    port: parseInt(process.env.DB_PORT || '5234'),
-    user: process.env.DB_USER || 'postgres',
-    password: process.env.DB_PASSWORD || 'password',
-    database: process.env.DB_NAME || 'web_market',
+    host: configService.dbHost,
+    port: configService.dbPort,
+    user: configService.dbUser,
+    password: configService.dbPassword,
+    database: configService.dbName,
 });
 
-export class AdvertisementService {
+export class OfferService {
     async getAllOffers() {
         try {
         const result = await pool.query(`
@@ -18,7 +19,7 @@ export class AdvertisementService {
             JOIN ad_categories c ON o.category_id = c.category_id
             JOIN ad_statuses s ON o.status_id = s.status_id
             JOIN users u ON o.user_id = u.id
-            WHERE s.status_name = 'активен'
+            WHERE s.status_name = 'active'
             ORDER BY o.created_date DESC
         `);
         return result.rows;
@@ -37,4 +38,4 @@ export class AdvertisementService {
     }
 
 }
-export const offerService = new AdvertisementService();
+export const offerService = new OfferService();
