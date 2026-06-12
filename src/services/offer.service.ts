@@ -10,8 +10,12 @@ const pool = new Pool({
 });
 
 export class OfferService {
-    async getAllOffers() {
+    async getAllOffers({ limit, page, searchQuery }: { limit: number; page: number; searchQuery?: string }) {
         try {
+            const offset = (page - 1) * limit;
+            const params: (string | number)[] = [];
+            let paramIndex = 1;
+
         const result = await pool.query(`
             SELECT o.*, c.category_name, 
             s.status_name, u.name as user_name
@@ -22,6 +26,11 @@ export class OfferService {
             WHERE s.status_name = 'active'
             ORDER BY o.created_date DESC
         `);
+        if (searchQuery) {
+                sql += ` AND (o.title ILIKE $${paramIndex} OR o.description ILIKE $${paramIndex})`;
+                params.push(`%${searchQuery}%`);
+                paramIndex++;
+            }
         return result.rows;
         } catch (error) {
         console.error('DB error in getAllOffers:', error);
