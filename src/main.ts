@@ -24,6 +24,5 @@ app.patch('/user/name', authenticate, updateUserName);
 
 const PORT = process.env.PORT||8080;
 app.listen(PORT,() => {
-    console.log(`port ${PORT}`);
-
+    logger.info('Server started on port ' + PORT);
 });
