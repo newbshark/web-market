@@ -12,13 +12,13 @@ const pool = new Pool({
 });
 
 export class AuthService {
-    async register(name:string, password:string, email:string){
+    async register(name: string, password: string, email: string) {
         const existingUser = await pool.query(
             'SELECT * FROM users WHERE email = $1',
             [email]
         );
         if (existingUser.rows.length > 0) {
-            throw new Error ("Пользователь с таким email уже существует");
+            throw new Error("Пользователь с таким email уже существует");
         }
         const hashedPassword = await bcrypt.hash(password, 10);
         const newUser = await pool.query(
@@ -31,7 +31,7 @@ export class AuthService {
             { expiresIn: '7d' }
         );
 
-        return{
+        return {
             success: true,
             user: newUser.rows[0],
             token
