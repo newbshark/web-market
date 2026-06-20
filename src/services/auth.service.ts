@@ -1,13 +1,14 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { Pool } from 'pg';
+import { configService } from '../common/config/config.service.js';
 
 const pool = new Pool({
-    host: process.env.DB_HOST || 'localhost',
-    port: parseInt(process.env.DB_PORT || '5234'),
-    user: process.env.DB_USER || 'postgres',
-    password: process.env.DB_PASSWORD || 'password',
-    database: process.env.DB_NAME || 'web_market',
+    host: configService.dbHost,
+    port: configService.dbPort,
+    user: configService.dbUser,
+    password: configService.dbPassword,
+    database: configService.dbName,
 });
 
 export class AuthService {
