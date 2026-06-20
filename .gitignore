@@ -5,3 +5,4 @@ dist
 *.iml
 modules.xml
 vcs.xml
+.idea
