@@ -12,7 +12,6 @@ const pool = new Pool({
 });
 
 export class AuthService {
-
     async register(name:string, password:string, email:string){
         const existingUser = await pool.query(
             'SELECT * FROM users WHERE email = $1',
@@ -31,7 +30,7 @@ export class AuthService {
             process.env.JWT_SECRET || 'secret_key',
             { expiresIn: '7d' }
         );
-        console.log('newUser:', newUser);
+
         return{
             success: true,
             user: newUser.rows[0],

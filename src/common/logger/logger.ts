@@ -1,13 +1,20 @@
 
 import winston from 'winston';
 
+enum LoggerLevelEnum {
+    INFO = 'info',
+    WARN = 'warn',
+    ERROR = 'error',
+    DEBUG = 'debug'
+}
+
 interface LoggerConfig {
-  level: 'info' | 'warn' | 'error' | 'debug';
+  level: LoggerLevelEnum;
   service: string;
 }
 
 const config: LoggerConfig = {
-  level: process.env.LOG_LEVEL as any || 'info',
+  level: process.env.LOG_LEVEL as LoggerLevelEnum || LoggerLevelEnum.INFO,
   service: 'blog-api'
 };
 

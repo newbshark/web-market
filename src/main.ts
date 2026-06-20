@@ -18,7 +18,8 @@ app.post('/login', login);
 app.patch('/user/name', authenticate, updateUserName);
 app.get('/api/users/:userId/offers', getUserOffers);
 
-const PORT = process.env.PORT || 8080;
-app.listen(PORT, () => {
-    console.log(`port ${PORT}`);
+
+const PORT = process.env.PORT||8080;
+app.listen(PORT,() => {
+    logger.info('Server started on port ' + PORT);
 });

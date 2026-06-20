@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt, { JwtPayload } from 'jsonwebtoken';
+import logger from '../common/logger/logger.js';
 
 export const authenticate = (req: Request, res: Response, next: NextFunction) => {
   const authHeader = req.headers.authorization;
@@ -14,7 +15,7 @@ export const authenticate = (req: Request, res: Response, next: NextFunction) =>
 
      const jwtSecret = process.env.JWT_SECRET;
   if (!jwtSecret) {
-    console.error('JWT_SECRET is not defined');
+
     return res.status(500).json({ message: 'Internal server error' });
   }
 

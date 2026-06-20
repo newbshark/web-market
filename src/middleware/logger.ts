@@ -6,7 +6,7 @@ export async function jwtValidationMiddleware(req: Request,
                                               res: Response,
                                               next: NextFunction) {
     const headers = req.headers;
-    let accessToken = headers.authorization;
+    const accessToken = headers.authorization;
     const userId = accessToken ? getUserIdFromToken(accessToken) : null;
 
     if (!userId) {
