@@ -1,44 +1,32 @@
-import { ColumnDefinitions, MigrationBuilder } from 'node-pg-migrate';
-
+import { MigrationBuilder } from 'node-pg-migrate';
 
 export async function up(pgm: MigrationBuilder): Promise<void> {
     pgm.createTable('messages', {
-        id: { type: 'serial', primaryKey: true, notNull: true },
-        thread_id: { type: 'smallserial', primaryKey: true, notNull: true },
-        sender_id: { type: 'smallserial' },
+        id: { type: 'serial', notNull: true },
+        thread_id: { type: 'integer', notNull: true },
+        sender_id: { type: 'integer', notNull: true },
         body: { type: 'varchar(1000)', notNull: true },
         created_at: {
             type: 'timestamptz',
             notNull: true,
             default: pgm.func('current_timestamp')
-        },
-
-    });
-
-
-
-    pgm.sql(`INSERT INTO "user_roles" (role) VALUES ('admin'), ('customer') `);
-
-    pgm.addColumn('users', {
-        role: {
-            type: 'varchar(50)',
-            notNull: true,
-            default: 'customer'
         }
     });
 
+    pgm.addConstraint('messages', 'messages_pkey', {
+        primaryKey: ['id', 'thread_id']
+    });
 
-    pgm.addConstraint('users', 'user_roles_fk', {
+    pgm.addConstraint('messages', 'messages_sender_fk', {
         foreignKeys: {
-            columns: 'role',
-            references: '"user_roles"(role)'
+            columns: 'sender_id',
+            references: 'users(id)',
+            onDelete: 'CASCADE'
         }
     });
 }
 
 export async function down(pgm: MigrationBuilder): Promise<void> {
-    pgm.dropConstraint('users', 'user_roles_fk');
-    pgm.dropColumn('users', 'role');
-    pgm.dropTable('user_roles');
-
+    pgm.dropConstraint('messages', 'messages_sender_fk');
+    pgm.dropTable('messages');
 }
