@@ -15,16 +15,11 @@ const pool = new Pool({
 export class OfferService {
     async getAllOffers(queryParams: GetAllOffersParams): Promise<Offer[]> {
 
-        let { limit, page, searchQuery } = queryParams;
+        const { limit, page } = queryParams;
+        const searchQuery = queryParams.searchQuery;
+
         try {
-            if (isNaN(limit) || limit < 1) {
-                limit = 20;
-            }
-
-            if (isNaN(page) || page < 1) {
-                page = 1;
-            }
-
+            
             const offset = (page - 1) * limit;
             const values: (string | number)[] = [];
             let paramIndex = 1;
@@ -60,8 +55,9 @@ export class OfferService {
 
             return result.rows;
         } catch (error) {
-            logger.error('DB error in getAllOffers:', error);
-            throw new Error('Failed to fetch offers');
+            const message = error instanceof Error? error.message : 'Unknown error';
+            logger.error('DB error in getAllOffers:', message);
+            throw error;
         }
     }
     async getUserOffers(userId: number): Promise<Offer[]> {
@@ -72,8 +68,9 @@ export class OfferService {
             );
             return result.rows;
         } catch (error) {
-            logger.error('DB error in getUserOffers:', error);
-            throw new Error('Failed to fetch user offers');
+            const message = error instanceof Error? error.message : 'Unknown error';
+            logger.error('DB error in getUserOffers:', message);
+            throw error;
         }
     }
 
