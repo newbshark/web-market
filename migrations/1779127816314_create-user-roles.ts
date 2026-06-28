@@ -30,11 +30,11 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
             columns: 'role',
             references: '"user_roles"(role)'
         }
-        });
+    });
 };
 
 export async function down(pgm: MigrationBuilder): Promise<void> {
-pgm.dropConstraint('users', 'user_roles_fk');
-pgm.dropColumn('users', 'role');
-pgm.dropTable('user_roles');
+    pgm.dropConstraint('users', 'user_roles_fk');
+    pgm.dropColumn('users', 'role');
+    pgm.dropTable('user_roles');
 };

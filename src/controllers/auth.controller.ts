@@ -17,15 +17,10 @@ export const register = async(req: Request, res: Response) => {
         }
         const result = await authService.register(name, password, email);
         res.status(201).json(result);
-    } catch (error: any) {
-
-        logger.error('Registration process error:', error.message);
-
-        res.status(400).json({
-            success: false,
-            message: error.message
-        });
-    }
+    } catch (eror) {
+    logger.error('Registration process error:', eror);
+    res.status(400).json({ error: 'Registration failed'  });
+}
 }
 
 export const login = async (req: Request, res: Response) => {
@@ -33,19 +28,15 @@ export const login = async (req: Request, res: Response) => {
         const { email, password } = req.body;
         if (!email || !password) {
             return res.status(400).json({
-                success: false,
                 message: 'Email and password necessery'
             });
         }
         const result = await authService.login(email, password);
         res.status(200).json(result);
-    } catch (error: any) {
-        logger.error('Sign in eror:', error.message);
-        res.status(401).json({
-            success: false,
-            message: error.message
-        });
-    }
+    } catch {
+    logger.error('Sign in error:');   
+    res.status(401).json({ message: 'Invalid credentials' });
+}
 };
 
 export const updateUserName = async (req: Request, res: Response) => {
