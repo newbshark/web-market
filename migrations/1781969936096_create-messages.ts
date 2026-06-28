@@ -1,11 +1,43 @@
 import { MigrationBuilder } from 'node-pg-migrate';
 
 export async function up(pgm: MigrationBuilder): Promise<void> {
+
+    pgm.createTable('threads', {
+        idthread: {
+            type: 'serial',
+            notNull: true
+        },
+        user_id: {
+            type: 'integer',
+            notNull: true,
+            references: 'users(id)',
+        },
+        nextuser_id: {
+            type: 'integer',
+            notNull: true,
+            references: 'users(id)',
+        },
+    });
+
     pgm.createTable('messages', {
-        id: { type: 'serial', notNull: true },
-        thread_id: { type: 'integer', notNull: true },
-        sender_id: { type: 'integer', notNull: true },
-        body: { type: 'varchar(1000)', notNull: true },
+        id: {
+            type: 'serial',
+            notNull: true
+        },
+        thread_id: {
+            type: 'integer',
+            notNull: true,
+            references: 'threads(id)',
+        },
+        sender_id: {
+            type: 'integer',
+            notNull: true,
+            references: 'users(id)',
+        },
+        body: {
+            type: 'text',
+            notNull: true
+        },
         created_at: {
             type: 'timestamptz',
             notNull: true,
