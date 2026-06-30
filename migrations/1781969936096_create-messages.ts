@@ -69,3 +69,4 @@ export async function down(pgm: MigrationBuilder): Promise<void> {
     pgm.dropConstraint('messages', 'messages_sender_fk', { ifExists: true });
     pgm.dropTable('messages', { ifExists: true });
 }
+
