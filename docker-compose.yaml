@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   webmarket-api:
     build: 
@@ -9,6 +7,15 @@ services:
       - "3000:3000"
     depends_on:
       - postgres
+    environment:
+      PORT: 3000
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
+      JWT_SECRET: ${JWT_SECRET}
+
   postgres:
     image: postgres:16-alpine
     container_name: web-market-postgres

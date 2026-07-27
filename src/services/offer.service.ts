@@ -1,7 +1,17 @@
-import { Pool } from 'pg';
+import { DatabaseError, Pool } from 'pg';
 import { configService } from '../common/config/config.service.js';
 import { Offer, GetAllOffersParams } from './interfaces/index.js'
 import logger from '../common/logger/logger.js';
+import { messageService } from './message.service.js';
+
+
+        logger.info('dbConfig', {
+            host: configService.dbHost,
+            port: configService.dbPort,
+            user: configService.dbUser,
+            password: configService.dbPassword,
+            database: configService.dbName
+        });
 
 
 const pool = new Pool({
@@ -12,14 +22,17 @@ const pool = new Pool({
     database: configService.dbName,
 });
 
+
 export class OfferService {
+
     async getAllOffers(queryParams: GetAllOffersParams): Promise<Offer[]> {
+
 
         const { limit, page } = queryParams;
         const searchQuery = queryParams.searchQuery;
 
         try {
-            
+
             const offset = (page - 1) * limit;
             const values: (string | number)[] = [];
             let paramIndex = 1;
@@ -28,8 +41,8 @@ export class OfferService {
                 SELECT o.*, c.category_name,
                        s.status_name, u.name as user_name
                 FROM offers o
-                         JOIN ad_categories c ON o.category_id = c.category_id
-                         JOIN ad_statuses s ON o.status_id = s.status_id
+                         JOIN offer_categories c ON o.category_id = c.category_id
+                         JOIN offer_statuses s ON o.status_id = s.status_id
                          JOIN users u ON o.user_id = u.id
                 WHERE s.status_name = 'active'
             `;
@@ -55,7 +68,7 @@ export class OfferService {
 
             return result.rows;
         } catch (error) {
-            const message = error instanceof Error? error.message : 'Unknown error';
+            const message = error instanceof Error ? error.message : 'Unknown error';
             logger.error('DB error in getAllOffers:', message);
             throw error;
         }
@@ -68,7 +81,7 @@ export class OfferService {
             );
             return result.rows;
         } catch (error) {
-            const message = error instanceof Error? error.message : 'Unknown error';
+            const message = error instanceof Error ? error.message : 'Unknown error';
             logger.error('DB error in getUserOffers:', message);
             throw error;
         }

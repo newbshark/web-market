@@ -15,3 +15,18 @@ export interface Offer {
   status_name: string;
   user_name: string;
 }
+
+export interface Thread {
+    idthread: number;
+    user_id: number;
+    nextuser_id: number;
+}
+
+export interface Message {
+    id: number;
+    thread_id: number;
+    sender_id: number;
+    body: string;
+    created_at: Date;
+    sender_name?: string;
+}

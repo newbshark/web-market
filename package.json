@@ -3,18 +3,19 @@
   "version": "1.0.0",
   "main": "src/main.ts",
   "type": "module",
-  "scripts": {
-    "start": "node dist/main.js",
-    "migrate": "node-pg-migrate -j ts",
-    "build": "tsc",
-    "dev": "tsx watch src/main.ts",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
-    "prepare": "husky",
-    "migrate:up": "node-pg-migrate up --migrations-dir migrations",
-    "migrate:down": "node-pg-migrate down --migrations-dir migrations",
-    "migrate:create": "node-pg-migrate create --migrations-dir migrations"
-  },
+"scripts": {
+  "start": "node dist/main.js",
+  "build": "tsc",
+  "dev": "tsx watch src/main.ts",
+  "lint": "eslint .",
+  "lint:fix": "eslint . --fix",
+  "prepare": "husky",
+  
+  "migrate": "node-pg-migrate up",
+  "migrate:ts": "node-pg-migrate -j ts up",
+  "migrate:up": "node-pg-migrate up",
+  "migrate:down": "node-pg-migrate down"
+},
   "keywords": [],
   "author": "",
   "license": "ISC",

@@ -8,7 +8,7 @@ export class ConfigService {
     }
 
     get dbPort(): number {
-        return parseInt(process.env.DB_PORT || '5234', 10);
+        return parseInt(process.env.DB_PORT || '5432', 10);
     }
 
     get dbUser(): string {

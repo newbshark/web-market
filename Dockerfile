@@ -1,13 +1,17 @@
 FROM node:22-alpine
-RUN npm install -g yarn
 
 WORKDIR /app
 
-COPY package.json tsconfig.json yarn.lock .env ./
-RUN yarn install --frozen-lockfile
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./ 
 
-COPY src ./src
+RUN npm install -g pnpm
 
-RUN yarn build 
+RUN pnpm ci
 
-CMD [ "node", "dist/main.js" ]
+COPY . .
+
+RUN pnpm run build
+
+EXPOSE 3000
+
+CMD ["node", "dist/main.js"]
