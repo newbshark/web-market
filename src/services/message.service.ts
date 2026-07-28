@@ -49,7 +49,7 @@ export class MessageService {
         `;
         const access = await pool.query(accessCheck, [threadId, senderId]);
         if (access.rows.length === 0) {
-            throw new Error('Нет доступа к этому чату');
+            throw new Error('No acccess to that thread');
         }
         const query = `
             INSERT INTO messages (thread_id, sender_id, body)
@@ -70,7 +70,7 @@ export class MessageService {
         `;
         const access = await pool.query(accessCheck, [threadId, userId]);
         if (access.rows.length === 0) {
-            throw new Error('Нет доступа к этому чату');
+            throw new Error('No acccess to that thread');
         }
 
         const query = `
@@ -123,19 +123,53 @@ export class MessageService {
     }
 
 
-    async getThreadsWithLastMessage(messageId: number, userId: number){
-        const query = `
-            DELETE FROM messages 
-            WHERE id = $1 
-              AND sender_id = $2
-            RETURNING id
-        `;
+    async deleteMessage(messageId: number, userId: number): Promise<boolean> {
+    const query = `
+        DELETE FROM messages 
+        WHERE id = $1 
+          AND sender_id = $2
+        RETURNING id
+    `;
 
-        const result = await pool.query(query, [messageId, userId]);
-        if (result.rowCount === 0) {
-            throw new Error('Сообщение не найдено или нет прав');
-        }
+    const result = await pool.query(query, [messageId, userId]);
+    
+    if (result.rowCount === 0) {
+        throw new Error('Message not found or you do not have permission to delete it');
     }
+    
+    return true; 
+
+    }
+    async getThreadsWithLastMessage(userId: number) {
+    const query = `
+        SELECT 
+            t.idthread as thread_id,
+            t.user_id,
+            t.nextuser_id,
+            u.name as other_user_name,
+            m.id as last_message_id,
+            m.body as last_message,
+            m.created_at as last_message_date,
+            m.sender_id as last_sender_id
+        FROM threads t
+        JOIN users u ON u.id = (CASE 
+            WHEN t.user_id = $1 THEN t.nextuser_id 
+            ELSE t.user_id 
+        END)
+        LEFT JOIN LATERAL (
+            SELECT id, body, created_at, sender_id
+            FROM messages 
+            WHERE thread_id = t.idthread
+            ORDER BY created_at DESC
+            LIMIT 1
+        ) m ON true
+        WHERE t.user_id = $1 OR t.nextuser_id = $1
+        ORDER BY m.created_at DESC NULLS LAST
+    `;
+
+    const result = await pool.query(query, [userId]);
+    return result.rows;
+}
 }
 
 export const messageService = new MessageService();

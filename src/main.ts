@@ -15,17 +15,20 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 
-app.get('/offers', getAllOffers);
-app.post('/register', register);
-app.post('/login', login);
-app.patch('/user/name', authenticate, updateUserName);
-app.get('/api/users/:userId/offers', getUserOffers);
+app.get('/api/v1/offers', getAllOffers);
+app.post('/api/v1/register', register);
+app.post('/api/v1/login', login);
+app.patch('/api/v1/user/name', authenticate, updateUserName);
+app.get('/api/v1/users/:userId/offers', getUserOffers);
 
 
-app.post('/threads', authenticate, messageController.createThread.bind(messageController));
-app.post('/messages', authenticate, messageController.sendMessage.bind(messageController));
-app.get('/threads', authenticate, messageController.getUserThreads.bind(messageController));
-app.get('/threads/:threadId/messages', authenticate, messageController.getMessages.bind(messageController));
+app.post('/api/v1/threads', authenticate, messageController.createThread.bind(messageController));
+app.post('/api/v1/messages', authenticate, messageController.sendMessage.bind(messageController));
+app.get('/api/v1/threads', authenticate, messageController.getUserThreads.bind(messageController));
+app.get('/api/v1/threads/:threadId/messages', authenticate, messageController.getMessages.bind(messageController));
+app.get('/api/v1/threads/last-messages', authenticate, messageController.getThreadsWithLastMessage.bind(messageController));
+
+app.delete('/api/v1/messages/:messageId', authenticate, messageController.deleteMessage.bind(messageController));
 
 const PORT = Number(process.env.PORT) || 3000;
 

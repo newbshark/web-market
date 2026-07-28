@@ -1,6 +1,8 @@
 import { Request, Response } from 'express';
 import { messageService } from '../services/message.service.js';
 import { authenticate } from '../middleware/jwt-validate.js';
+import logger from '../common/logger/logger.js';
+import { error } from 'node:console';
 
 export class MessageController {
     async createThread(req: Request, res: Response) {
@@ -32,7 +34,8 @@ export class MessageController {
     async sendMessage(req: Request, res: Response) {
         try {
             const userId = req.userId;
-            const { threadId, body } = req.body;
+            const threadId = Number(req.params.threadId);
+            const { body } = req.body;
 
             if (!threadId || !body) {
                 return res.status(400).json({
@@ -40,7 +43,7 @@ export class MessageController {
                 });
             }
 
-            const message = await messageService.sendMessage(userId!, Number(threadId), body);
+            const message = await messageService.sendMessage(userId!, threadId, body);
 
             res.status(201).json({
                 message
@@ -55,7 +58,7 @@ export class MessageController {
     async getMessages(req: Request, res: Response) {
         try {
             const userId = req.userId;
-            const { threadId } = req.params;
+            const threadId = Number(req.params.threadId);
 
             if (!threadId) {
                 return res.status(400).json({
@@ -64,7 +67,7 @@ export class MessageController {
                 });
             }
 
-            const messages = await messageService.getMessages(Number(threadId), userId!);
+            const messages = await messageService.getMessages(threadId, userId!);
 
             res.status(200).json({
                 data: messages
@@ -88,6 +91,52 @@ export class MessageController {
         } catch (error: any) {
             res.status(400).json({
                 message: error.message
+            });
+        }
+    }
+    async getThreadsWithLastMessage(req: Request, res: Response){
+        try{
+            const threadId = req.params.threadId;
+            const userId = req.userId;
+             if (!userId) {
+            return res.status(401).json({
+                success: false,
+                message: 'Unauthorized'
+            });
+         
+        }
+         const threads = await messageService.getThreadsWithLastMessage(userId);
+
+        res.status(200).json({
+            success: true,
+            data: threads
+        });
+        }
+        catch(error: any){
+         res.status(400).json({
+                message: error.message
+            });
+            
+        }
+    }
+    
+    async deleteMessage(req: Request, res: Response) {
+        try {
+            const messageId = parseInt(req.params.messageId as string);
+            const userId = req.userId;
+            if (!userId) {
+                return res.status(401).json({ error: 'Unauthorized' });
+            }
+
+            await messageService.deleteMessage(messageId, userId);
+
+            res.status(200).json({
+                success: true,
+                message: 'Message deleted successfully'
+            });
+        } catch (error) {
+            res.status(404).json({
+                
             });
         }
     }
