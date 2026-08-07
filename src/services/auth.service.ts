@@ -1,69 +1,99 @@
+
+import { getPool } from '../common/database.js';
+import logger from '../common/logger/logger.js';
+import { configService } from '../common/config/config.service.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import { Pool } from 'pg';
-import { configService } from '../common/config/config.service.js';
-
-const pool = new Pool({
-    host: configService.dbHost,
-    port: configService.dbPort,
-    user: configService.dbUser,
-    password: configService.dbPassword,
-    database: configService.dbName,
-});
 
 export class AuthService {
-    async register(name: string, password: string, email: string) {
-        const existingUser = await pool.query(
-            'SELECT * FROM users WHERE email = $1',
-            [email]
-        );
-        if (existingUser.rows.length > 0) {
-            throw new Error("Пользователь с таким email уже существует");
-        }
-        const hashedPassword = await bcrypt.hash(password, 10);
-        const newUser = await pool.query(
-            'INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING id, name, email',
-            [name, email, hashedPassword]
-        );
-        const token = jwt.sign(
-            { userId: newUser.rows[0].id, email: email },
-            process.env.JWT_SECRET || 'secret_key',
-            { expiresIn: '7d' }
-        );
+    private pool = getPool();
 
-        return {
-            success: true,
-            user: newUser.rows[0],
-            token
+    async register(name: string, email: string, password: string) {
+        try {
+
+            const existingUser = await this.pool.query(
+                'SELECT id FROM users WHERE email = $1',
+                [email]
+            );
+
+            if (existingUser.rows.length > 0) {
+                throw new Error('User with this email already exists');
+            }
+
+
+            const hashedPassword = await bcrypt.hash(password, 10);
+
+
+            const result = await this.pool.query(
+                `INSERT INTO users (name, email, password, role)
+                 VALUES ($1, $2, $3, 'customer')
+                 RETURNING id, name, email, role, created_at`,
+                [name, email, hashedPassword]
+            );
+
+            const newUser = result.rows[0];
+
+
+            const token = jwt.sign(
+                { userId: newUser.id, email: newUser.email },
+                configService.jwtSecret,
+                { expiresIn: '7d' }
+            );
+
+            return {
+                user: {
+                    id: newUser.id,
+                    name: newUser.name,
+                    email: newUser.email,
+                    role: newUser.role,
+                },
+                token,
+            };
+        } catch (error) {
+            logger.error('AuthService.register error:', error);
+            throw error;
         }
-    };
+    }
 
     async login(email: string, password: string) {
-        const userFromDb = await pool.query(
-            'SELECT id, email, password FROM users WHERE email = $1',
-            [email]
-        );
+        try {
 
-        if (userFromDb.rows.length === 0) {
-            throw new Error('Invalid email or password');
+            const result = await this.pool.query(
+                'SELECT id, name, email, password, role FROM users WHERE email = $1',
+                [email]
+            );
+
+            if (result.rows.length === 0) {
+                throw new Error('Invalid email or password');
+            }
+
+            const user = result.rows[0];
+
+
+            const isValid = await bcrypt.compare(password, user.password);
+            if (!isValid) {
+                throw new Error('Invalid email or password');
+            }
+
+
+            const token = jwt.sign(
+                { userId: user.id, email: user.email },
+                configService.jwtSecret,
+                { expiresIn: '7d' }
+            );
+
+            return {
+                user: {
+                    id: user.id,
+                    name: user.name,
+                    email: user.email,
+                    role: user.role,
+                },
+                accessToken: token,
+            };
+        } catch (error) {
+            logger.error('AuthService.login error:', error);
+            throw error;
         }
-
-        const isValid = await bcrypt.compare(password, userFromDb.rows[0].password);
-        if (!isValid) {
-            throw new Error('Invalid email or password');
-        }
-
-        const payload = { userId: userFromDb.rows[0].id };
-        const accessToken = jwt.sign(
-            payload,
-            process.env.JWT_SECRET || 'secret_key',
-            { expiresIn: '4h' }
-        );
-
-        return {
-            success: true,
-            accessToken
-        }
-    };
+    }
 }
-

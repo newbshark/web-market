@@ -1,32 +1,40 @@
+
 import { Request, Response } from 'express';
 import { messageService } from '../services/message.service.js';
-import { authenticate } from '../middleware/jwt-validate.js';
 import logger from '../common/logger/logger.js';
-import { error } from 'node:console';
 
 export class MessageController {
     async createThread(req: Request, res: Response) {
-
         try {
-            const userId = req.userId; // из JWT middleware
+            const userId = req.userId;
             const { otherUserId } = req.body;
+
+            if (!userId) {
+                return res.status(401).json({
+                    success: false,
+                    message: 'User is not authorized'
+                });
+            }
 
             if (!otherUserId) {
                 return res.status(400).json({
                     success: false,
-                    message: 'otherUserId обязателен'
+                    message: 'otherUserId is required'
                 });
             }
 
-            const thread = await messageService.createOrGetThread(userId!, Number(otherUserId));
+            const thread = await messageService.createOrGetThread(userId, Number(otherUserId));
 
             res.status(200).json({
                 success: true,
                 thread
             });
-        } catch (error: any) {
+        } catch (error) {
+            logger.error('createThread error:', error);
+            const message = error instanceof Error ? error.message : 'Failed to create thread';
             res.status(400).json({
-                message: error.message
+                success: false,
+                message
             });
         }
     }
@@ -34,23 +42,38 @@ export class MessageController {
     async sendMessage(req: Request, res: Response) {
         try {
             const userId = req.userId;
-            const threadId = Number(req.params.threadId);
-            const { body } = req.body;
+            const { threadId, body } = req.body;
 
-            if (!threadId || !body) {
-                return res.status(400).json({
-                    message: 'threadId and body indeed'
+            if (!userId) {
+                return res.status(401).json({
+                    success: false,
+                    message: 'User is not authorized'
                 });
             }
 
-            const message = await messageService.sendMessage(userId!, threadId, body);
+            if (!threadId || !body) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'threadId and body are required'
+                });
+            }
+
+            const message = await messageService.sendMessage(
+                userId,
+                Number(threadId),
+                body
+            );
 
             res.status(201).json({
+                success: true,
                 message
             });
-        } catch (error: any) {
+        } catch (error) {
+            logger.error('sendMessage error:', error);
+            const message = error instanceof Error ? error.message : 'Failed to send message';
             res.status(400).json({
-                message: error.message
+                success: false,
+                message
             });
         }
     }
@@ -58,74 +81,84 @@ export class MessageController {
     async getMessages(req: Request, res: Response) {
         try {
             const userId = req.userId;
+            
             const threadId = Number(req.params.threadId);
 
-            if (!threadId) {
-                return res.status(400).json({
+            if (!userId) {
+                return res.status(401).json({
                     success: false,
-                    message: 'threadId indeed'
+                    message: 'User is not authorized'
                 });
             }
 
-            const messages = await messageService.getMessages(threadId, userId!);
+            if (!threadId || isNaN(threadId)) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Valid threadId is required'
+                });
+            }
+
+            const messages = await messageService.getMessages(threadId, userId);
 
             res.status(200).json({
+                success: true,
                 data: messages
             });
-        } catch (error: any) {
+        } catch (error) {
+            logger.error('getMessages error:', error);
+            const message = error instanceof Error ? error.message : 'Failed to get messages';
             res.status(400).json({
-                message: error.message
+                success: false,
+                message
             });
         }
     }
 
-    async getUserThreads(req: Request, res: Response) {
+    async getThreadsWithLastMessage(req: Request, res: Response) {
         try {
             const userId = req.userId;
 
-            const threads = await messageService.getUserThreads(userId!);
+            if (!userId) {
+                return res.status(401).json({
+                    success: false,
+                    message: 'Unauthorized'
+                });
+            }
+
+            const threads = await messageService.getThreadsWithLastMessage(userId);
 
             res.status(200).json({
+                success: true,
                 data: threads
             });
-        } catch (error: any) {
+        } catch (error) {
+            logger.error('getThreadsWithLastMessage error:', error);
+            const message = error instanceof Error ? error.message : 'Failed to get threads';
             res.status(400).json({
-                message: error.message
-            });
-        }
-    }
-    async getThreadsWithLastMessage(req: Request, res: Response){
-        try{
-            const threadId = req.params.threadId;
-            const userId = req.userId;
-             if (!userId) {
-            return res.status(401).json({
                 success: false,
-                message: 'Unauthorized'
+                message
             });
-         
-        }
-         const threads = await messageService.getThreadsWithLastMessage(userId);
-
-        res.status(200).json({
-            success: true,
-            data: threads
-        });
-        }
-        catch(error: any){
-         res.status(400).json({
-                message: error.message
-            });
-            
         }
     }
-    
+
     async deleteMessage(req: Request, res: Response) {
         try {
-            const messageId = parseInt(req.params.messageId as string);
             const userId = req.userId;
+            
+            const messageId = Number(req.params.messageId);
+
             if (!userId) {
-                return res.status(401).json({ error: 'Unauthorized' });
+                return res.status(401).json({
+                    success: false,
+                    message: 'Unauthorized'
+                });
+            }
+
+            if (!messageId || isNaN(messageId)) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Valid messageId is required'
+                });
             }
 
             await messageService.deleteMessage(messageId, userId);
@@ -135,11 +168,14 @@ export class MessageController {
                 message: 'Message deleted successfully'
             });
         } catch (error) {
+            logger.error('deleteMessage error:', error);
+            const message = error instanceof Error ? error.message : 'Failed to delete message';
             res.status(404).json({
-                
+                success: false,
+                message
             });
         }
     }
 }
-export const messageController = new MessageController();
 
+export const messageController = new MessageController();

@@ -3,19 +3,18 @@
   "version": "1.0.0",
   "main": "src/main.ts",
   "type": "module",
-"scripts": {
-  "start": "node dist/main.js",
-  "build": "tsc",
-  "dev": "tsx watch src/main.ts",
-  "lint": "eslint .",
-  "lint:fix": "eslint . --fix",
-  "prepare": "husky",
-  
-  "migrate": "node-pg-migrate up",
-  "migrate:ts": "node-pg-migrate -j ts up",
-  "migrate:up": "node-pg-migrate up",
-  "migrate:down": "node-pg-migrate down"
-},
+  "scripts": {
+    "start": "node dist/main.js",
+    "build": "tsc",
+    "dev": "tsx watch src/main.ts",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "prepare": "husky",
+    "migrate": "node-pg-migrate up",
+    "migrate:ts": "node-pg-migrate -j ts up",
+    "migrate:up": "node-pg-migrate up",
+    "migrate:down": "node-pg-migrate down"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -42,6 +41,7 @@
     "husky": "^9.1.7",
     "node-pg-migrate": "^8.0.4",
     "pg": "^8.21.0",
+    "pnpm": "^10.34.5",
     "tsx": "^4.19.4",
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.61.1"
