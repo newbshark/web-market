@@ -5,7 +5,8 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
     pgm.createTable('threads', {
         idthread: {
             type: 'serial',
-            notNull: true
+            notNull: true,
+            primaryKey: true
         },
         user_id: {
             type: 'integer',
@@ -27,7 +28,7 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
         thread_id: {
             type: 'integer',
             notNull: true,
-            references: 'threads(id)',
+            references: 'threads(idthread)',
         },
         sender_id: {
             type: 'integer',

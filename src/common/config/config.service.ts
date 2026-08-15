@@ -1,6 +1,9 @@
 
+import 'dotenv/config';
+
 export class ConfigService {
-    constructor() {
+    get port(): number {
+        return parseInt(process.env.PORT || '3000', 10);
     }
 
     get dbHost(): string {
@@ -8,7 +11,7 @@ export class ConfigService {
     }
 
     get dbPort(): number {
-        return parseInt(process.env.DB_PORT || '5234', 10);
+        return parseInt(process.env.DB_PORT || '5432', 10);
     }
 
     get dbUser(): string {
@@ -21,6 +24,26 @@ export class ConfigService {
 
     get dbName(): string {
         return process.env.DB_NAME || 'web_market';
+    }
+
+    get jwtSecret(): string {
+        const secret = process.env.JWT_SECRET;
+        if (!secret || secret === 'secret_key') {
+            throw new Error('JWT_SECRET must be set and not be default value in production!');
+        }
+        return secret;
+    }
+
+    get logLevel(): string {
+        return process.env.LOG_LEVEL || 'info';
+    }
+
+    get isProduction(): boolean {
+        return process.env.NODE_ENV === 'production';
+    }
+
+    get isDevelopment(): boolean {
+        return !this.isProduction;
     }
 }
 

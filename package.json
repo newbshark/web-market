@@ -5,15 +5,15 @@
   "type": "module",
   "scripts": {
     "start": "node dist/main.js",
-    "migrate": "node-pg-migrate -j ts",
     "build": "tsc",
     "dev": "tsx watch src/main.ts",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "prepare": "husky",
-    "migrate:up": "node-pg-migrate up --migrations-dir migrations",
-    "migrate:down": "node-pg-migrate down --migrations-dir migrations",
-    "migrate:create": "node-pg-migrate create --migrations-dir migrations"
+    "migrate": "node-pg-migrate up",
+    "migrate:ts": "node-pg-migrate -j ts up",
+    "migrate:up": "node-pg-migrate up",
+    "migrate:down": "node-pg-migrate down"
   },
   "keywords": [],
   "author": "",
@@ -41,6 +41,7 @@
     "husky": "^9.1.7",
     "node-pg-migrate": "^8.0.4",
     "pg": "^8.21.0",
+    "pnpm": "^10.34.5",
     "tsx": "^4.19.4",
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.61.1"

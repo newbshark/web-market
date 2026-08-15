@@ -15,7 +15,7 @@ export const register = async(req: Request, res: Response) => {
                 message: 'All fields (name, email, password) are required'
             });
         }
-        const result = await authService.register(name, password, email);
+        const result = await authService.register(name, email, password);
         res.status(201).json(result);
     } catch (eror) {
     logger.error('Registration process error:', eror);
