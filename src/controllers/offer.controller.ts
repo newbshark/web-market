@@ -55,7 +55,6 @@ export const createOffer = async (req: Request, res: Response) => {
         const userId = req.userId;
 
         if (!userId) {
-            console.log('No userId found');
             return res.status(401).json({
                 success: false,
                 message: 'Unauthorized'
@@ -67,7 +66,6 @@ export const createOffer = async (req: Request, res: Response) => {
 
 
         if (!title || !price || !category_id) {
-            console.log('Missing required fields');
             return res.status(400).json({
                 success: false,
                 message: 'title, price and category_id are required'
