@@ -81,7 +81,7 @@ export class MessageController {
     async getMessages(req: Request, res: Response) {
         try {
             const userId = req.userId;
-            
+
             const threadId = Number(req.params.threadId);
 
             if (!userId) {
@@ -144,7 +144,7 @@ export class MessageController {
     async deleteMessage(req: Request, res: Response) {
         try {
             const userId = req.userId;
-            
+
             const messageId = Number(req.params.messageId);
 
             if (!userId) {
