@@ -2,10 +2,10 @@
 import winston from 'winston';
 
 enum LoggerLevelEnum {
-    INFO = 'info',
-    WARN = 'warn',
-    ERROR = 'error',
-    DEBUG = 'debug'
+  INFO = 'info',
+  WARN = 'warn',
+  ERROR = 'error',
+  DEBUG = 'debug'
 }
 
 interface LoggerConfig {
@@ -18,7 +18,7 @@ const config: LoggerConfig = {
   service: 'blog-api'
 };
 
- const logger = winston.createLogger({
+const logger = winston.createLogger({
   level: config.level,
   defaultMeta: { service: config.service },
   format: winston.format.json(),

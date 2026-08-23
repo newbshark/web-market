@@ -1,15 +1,15 @@
 declare global {
-    namespace Express {
-        interface Request {
-            user?: JwtUser;
-        }
+  namespace Express {
+    interface Request {
+      user?: JwtUser;
     }
+  }
 }
 
 export interface JwtUser {
-    id: number;
+  id: number;
 }
- 
+
 declare global {
   namespace Express {
     interface Request {
@@ -18,4 +18,4 @@ declare global {
   }
 }
 
-export {};
+export { };

@@ -1,37 +1,34 @@
-
-import { getPool } from '../common/database.js';
+import { getKnex } from '../common/database/knex.js';
 import logger from '../common/logger/logger.js';
 import { configService } from '../common/config/config.service.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
 export class AuthService {
-    private pool = getPool();
+    private knex = getKnex();
 
     async register(name: string, email: string, password: string) {
         try {
 
-            const existingUser = await this.pool.query(
-                'SELECT id FROM users WHERE email = $1',
-                [email]
-            );
+            const existingUser = await this.knex('users')
+                .where('email', email)
+                .first();
 
-            if (existingUser.rows.length > 0) {
+            if (existingUser) {
                 throw new Error('User with this email already exists');
             }
-
 
             const hashedPassword = await bcrypt.hash(password, 10);
 
 
-            const result = await this.pool.query(
-                `INSERT INTO users (name, email, password, role)
-                 VALUES ($1, $2, $3, 'customer')
-                 RETURNING id, name, email, role, created_at`,
-                [name, email, hashedPassword]
-            );
-
-            const newUser = result.rows[0];
+            const [newUser] = await this.knex('users')
+                .insert({
+                    name: name,
+                    email: email,
+                    password: hashedPassword,
+                    role: 'customer'
+                })
+                .returning(['id', 'name', 'email', 'role', 'created_at']);
 
 
             const token = jwt.sign(
@@ -39,6 +36,8 @@ export class AuthService {
                 configService.jwtSecret,
                 { expiresIn: '7d' }
             );
+
+            logger.info(`User registered: ${email}`);
 
             return {
                 user: {
@@ -58,16 +57,13 @@ export class AuthService {
     async login(email: string, password: string) {
         try {
 
-            const result = await this.pool.query(
-                'SELECT id, name, email, password, role FROM users WHERE email = $1',
-                [email]
-            );
+            const user = await this.knex('users')
+                .where('email', email)
+                .first();
 
-            if (result.rows.length === 0) {
+            if (!user) {
                 throw new Error('Invalid email or password');
             }
-
-            const user = result.rows[0];
 
 
             const isValid = await bcrypt.compare(password, user.password);
@@ -82,6 +78,8 @@ export class AuthService {
                 { expiresIn: '7d' }
             );
 
+            logger.info(`User logged in: ${email}`);
+
             return {
                 user: {
                     id: user.id,
@@ -93,6 +91,25 @@ export class AuthService {
             };
         } catch (error) {
             logger.error('AuthService.login error:', error);
+            throw error;
+        }
+    }
+
+    async updateUserName(userId: number, name: string) {
+        try {
+            const [updatedUser] = await this.knex('users')
+                .where('id', userId)
+                .update({ name: name })
+                .returning(['id', 'name', 'email', 'role']);
+
+            if (!updatedUser) {
+                throw new Error('User not found');
+            }
+
+            logger.info(`User ${userId} updated name to ${name}`);
+            return updatedUser;
+        } catch (error) {
+            logger.error('AuthService.updateUserName error:', error);
             throw error;
         }
     }

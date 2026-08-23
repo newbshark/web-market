@@ -3,8 +3,8 @@ import { getUserIdFromToken } from '../utils/jwt-helper.js';
 
 
 export async function jwtValidationMiddleware(req: Request,
-                                              res: Response,
-                                              next: NextFunction) {
+    res: Response,
+    next: NextFunction) {
     const headers = req.headers;
     const accessToken = headers.authorization;
     const userId = accessToken ? getUserIdFromToken(accessToken) : null;

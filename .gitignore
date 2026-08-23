@@ -1,8 +1,91 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+.pnpm-debug.log
+
+# Build output
+dist/
+build/
+*.tsbuildinfo
+
+# Environment files
 .env
-node_modules
-dist
+.env.local
+.env.*.local
+.env.*.local.*
+.env.production
+.env.development
+.env.test
+.env.staging
+!.env.example
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# IDE files
+.vscode/
 .idea/
 *.iml
-modules.xml
-vcs.xml
-.idea
+.vscode-server/
+
+# Docker
+*.pid
+*.seed
+*.pid.lock
+
+# Database
+*.sqlite
+*.sqlite3
+
+# Coverage
+coverage/
+.nyc_output/
+
+# Temporary files
+tmp/
+temp/
+.cache/
+
+# Misc
+*.pem
+*.key
+*.crt
+*.csr
+*.cert
+*.p12
+
+# Package manager specific
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Test scripts
+test-*.sh
+*.sh
+
+# Knex config files (раскомментируйте если не хотите хранить)
+# knexfile.cjs
+# knexfile.ts
+
+# Migration files (раскомментируйте если не хотите хранить)
+# migrations/*
+
+# Secrets
+*.secret
+*.env
+!.env.example
+
+# Database connection files (раскомментируйте если не хотите хранить)
+# src/common/database/
